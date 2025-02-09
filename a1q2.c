@@ -11,14 +11,28 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    if (freopen(argv[1], "r", stdin) == NULL) {
-        perror("freopen");
+    FILE *file = fopen(argv[1], "r");
+    if (!file) {
+        perror("fopen");
         return -1;
     }
 
-    execlp("wc", "wc", "-c", NULL);
+    if (fseek(file, 0, SEEK_END)) {
+        perror("fseek");
+        fclose(file);
+        return -1;
+    }
 
-    // if we get here, exec failed
-    perror("execlp");
-    return -1;
+    long size = ftell(file);
+    if (size == -1) {
+        perror("ftell");
+        fclose(file);
+        return -1;
+    }
+
+    fclose(file);
+
+    printf("%ld\n", size);
+
+    return 0;
 }
